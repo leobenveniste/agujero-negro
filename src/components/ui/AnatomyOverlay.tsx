@@ -17,9 +17,9 @@ export const AnatomyOverlay: React.FC<AnatomyOverlayProps> = ({
 }) => {
   return (
     <>
-      {/* Selected Part Detail Inspector Card (Left Floating HUD) */}
+      {/* Selected Part Detail Inspector Card (Bottom sheet on mobile, left HUD on desktop) */}
       {selectedPart && (
-        <aside className="absolute top-20 left-4 md:left-6 z-20 w-80 md:w-96 max-h-[calc(100vh-120px)] overflow-y-auto bg-slate-950/85 backdrop-blur-xl border border-slate-800/90 rounded-2xl shadow-2xl p-5 text-left animate-in fade-in slide-in-from-left duration-300">
+        <aside className="absolute bottom-3 left-3 right-3 md:bottom-auto md:right-auto md:top-20 md:left-6 z-20 md:w-96 max-h-[55vh] md:max-h-[calc(100vh-120px)] overflow-y-auto bg-slate-950/90 backdrop-blur-xl border border-slate-800/90 rounded-2xl shadow-2xl p-4 md:p-5 text-left animate-in fade-in duration-300">
           {/* Header */}
           <div className="flex items-start justify-between gap-3 pb-3 border-b border-slate-800">
             <div>
