@@ -249,4 +249,22 @@ export const ANATOMY_PARTS: AnatomyPart[] = [
     cameraPosition: [0, 0, 6.0],
     cameraTarget: [0, 0, 0],
   },
+  {
+    id: 'spaceship',
+    name: 'Nave de Exploración Científica',
+    shortName: 'Nave',
+    tagline: 'Misión orbital tripulada en la frontera relativista',
+    description: 'Nave científica de investigación de espacio profundo en órbita estable alrededor del agujero negro. Equipada con un anillo de gravedad artificial rotatorio, escudos cerámicos de protección radiante y propulsores iónicos para contrarrestar las intensas perturbaciones de marea cósmica.',
+    physicsFormula: 'v_{orb} = \\sqrt{\\frac{GM}{r}}',
+    formulaExplanation: 'Velocidad orbital relativista necesaria para mantenerse en trayectoria segura por encima del límite ISCO.',
+    keyFacts: [
+      'Experimenta dilatación temporal gravitacional extrema: el tiempo a bordo transcurre más lento que en la Tierra.',
+      'Su anillo de hábitat exterior rota continuamente para generar gravedad artificial por aceleración centrífuga.',
+      'Monitorea en tiempo real los flujos de plasma relativista del disco de acreción y la deflexión de fotones.',
+    ],
+    visualRadiusMultiplier: 4.5,
+    color: '#38bdf8',
+    cameraPosition: [3.0, 1.8, 4.0],
+    cameraTarget: [0, 0, 0],
+  },
 ];

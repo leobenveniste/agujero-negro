@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { RaytracedBlackHoleShader } from './RaytracedBlackHoleShader';
+import { createSpaceship } from './Spaceship';
 import type { AnatomyPart } from '../../types/blackhole';
 
 interface BlackHoleSceneProps {
@@ -27,9 +28,12 @@ export const BlackHoleScene: React.FC<BlackHoleSceneProps> = ({
   const prevPinchDistRef = useRef<number | null>(null);
   const sphericalRef = useRef(new THREE.Spherical(20.0, Math.PI / 2.3, 0.2));
 
+  const selectedPartRef = useRef(selectedPart);
+
   // Focus camera smoothly when an anatomical part is selected
   useEffect(() => {
-    if (selectedPart) {
+    selectedPartRef.current = selectedPart;
+    if (selectedPart && selectedPart.id !== 'spaceship') {
       const scale = 3.6;
       targetCamPosRef.current.set(
         selectedPart.cameraPosition[0] * scale,
@@ -42,7 +46,7 @@ export const BlackHoleScene: React.FC<BlackHoleSceneProps> = ({
         selectedPart.cameraTarget[2] * scale
       );
       sphericalRef.current.setFromVector3(targetCamPosRef.current);
-    } else {
+    } else if (!selectedPart) {
       targetCamPosRef.current.set(0, 4.0, 20.0);
       targetLookAtRef.current.set(0, 0, 0);
       sphericalRef.current.setFromVector3(targetCamPosRef.current);
@@ -129,7 +133,32 @@ export const BlackHoleScene: React.FC<BlackHoleSceneProps> = ({
 
     const raytraceMesh = new THREE.Mesh(quadGeo, raytraceMat);
     raytraceMesh.frustumCulled = false;
+    raytraceMesh.renderOrder = -100;
     scene.add(raytraceMesh);
+
+    // -------------------------------------------------------------
+    // LIGHTS FOR 3D OBJECTS (SPACESHIP & ILLUMINATION)
+    // -------------------------------------------------------------
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    // Warm radial light from the relativistic accretion disk
+    const diskLight = new THREE.DirectionalLight(0xffaa44, 2.5);
+    diskLight.position.set(0, 3.0, 0);
+    scene.add(diskLight);
+
+    // Cold stellar rim light
+    const rimLight = new THREE.DirectionalLight(0x60a5fa, 1.2);
+    rimLight.position.set(0, -4.0, 10.0);
+    scene.add(rimLight);
+
+    // -------------------------------------------------------------
+    // SCI-FI SPACESHIP ORBITING THE BLACK HOLE
+    // -------------------------------------------------------------
+    const spaceship = createSpaceship();
+    scene.add(spaceship.orbitLine);
+    scene.add(spaceship.trailPoints);
+    scene.add(spaceship.group);
 
     // -------------------------------------------------------------
     // MOUSE & IPAD/TABLET MULTI-TOUCH CONTROLS (ORBIT & PINCH-ZOOM)
@@ -259,6 +288,17 @@ export const BlackHoleScene: React.FC<BlackHoleSceneProps> = ({
 
       const simTime = currentTime * 0.001;
 
+      // Update orbiting spaceship and thruster exhaust trail
+      spaceship.update(simTime, dt);
+
+      // Smooth chase camera tracking if spaceship view is active
+      if (selectedPartRef.current?.id === 'spaceship' && !isDraggingRef.current) {
+        const shipPos = spaceship.getPosition();
+        const chaseOffset = new THREE.Vector3(0, 1.4, 4.2).applyQuaternion(spaceship.group.quaternion);
+        targetCamPosRef.current.copy(shipPos).add(chaseOffset);
+        targetLookAtRef.current.copy(shipPos);
+      }
+
       // Smooth camera interpolation
       camera.position.lerp(targetCamPosRef.current, dt * 5.0);
       currentLookAtRef.current.lerp(targetLookAtRef.current, dt * 5.0);
@@ -288,6 +328,8 @@ export const BlackHoleScene: React.FC<BlackHoleSceneProps> = ({
       dom.removeEventListener('touchend', onTouchEnd);
       dom.removeEventListener('touchcancel', onTouchEnd);
       window.removeEventListener('resize', handleResize);
+
+      spaceship.dispose();
 
       if (rendererRef.current && rendererRef.current.domElement) {
         container.removeChild(rendererRef.current.domElement);
